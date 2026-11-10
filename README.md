@@ -28,10 +28,10 @@ Apli-Gym es una **app instalable (PWA)**: se agrega a la pantalla de inicio con 
 
 **1. Publicarla (una sola vez)** con GitHub Pages, que da la dirección HTTPS que necesita una app instalable:
 
-1. Une esta rama a `main`. El workflow `.github/workflows/deploy-apli-gym.yml` publica la carpeta `apli-gym/` cada vez que cambia.
+1. Une esta rama a `main`. El workflow `.github/workflows/deploy.yml` publica la app cada vez que cambia `main`.
 2. En GitHub: **Settings → Pages → Build and deployment → Source: “GitHub Actions”**.
 3. Espera a que termine la acción **“Publicar Apli-Gym en GitHub Pages”** (pestaña *Actions*). La dirección queda como
-   `https://<tu-usuario>.github.io/automatizacion-buk/`.
+   `https://<tu-usuario>.github.io/apli-gym/`.
 
 > GitHub Pages en planes gratuitos requiere que el repositorio sea **público**. El código no contiene datos personales: tus registros viven solo en tu celular.
 
@@ -47,7 +47,6 @@ Después ábrela siempre desde el ícono. Cada vez que publiques cambios, la app
 Abre `index.html` con doble clic, o sírvela localmente:
 
 ```bash
-cd apli-gym
 python3 -m http.server 8000
 # luego abre http://localhost:8000
 ```
@@ -57,7 +56,8 @@ python3 -m http.server 8000
 ## Estructura
 
 ```
-apli-gym/
+.
+├── .github/workflows/deploy.yml  # Publica en GitHub Pages
 ├── index.html            # Interfaz
 ├── styles.css            # Estilos (modo claro/oscuro, responsive)
 ├── manifest.webmanifest  # Nombre, ícono y colores de la app instalable
