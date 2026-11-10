@@ -116,7 +116,7 @@ El valor principal ahora es **registrar rápido y ver progreso**. La opción A e
 5. [x] Exportar / importar JSON.
 6. [x] Fase 2: **Objetivos** por ejercicio, con línea de meta en el gráfico y % de avance (ver nota abajo).
 7. [x] Fase 3: PWA instalable (manifest + service worker) para usarla como app en el celular (ver nota abajo).
-8. [ ] Fase 4: Sincronización en la nube (Supabase) reemplazando `storage.js`.
+8. [x] Fase 4: Sincronización en la nube (Supabase). Detalle en [ADR-002](ADR-002-sincronizacion-nube.md).
 9. [ ] Ideas futuras: rutinas/plantillas, volumen semanal por grupo muscular, alertas de récord.
 
 ## Nota de implementación — Fase 2 (Objetivos)
@@ -142,4 +142,4 @@ Se eligió **PWA** en vez de una app nativa (Android/iOS) o un empaquetador (Cap
 - `sw.js`: precarga los archivos de la app y usa *stale-while-revalidate*; al publicar cambios se sube `CACHE_VERSION`.
 - `js/pwa.js`: botón de instalación (Android/Chrome) o instrucciones (iPhone), y `navigator.storage.persist()` para reducir el riesgo de que el sistema borre los datos.
 - Publicación automática con GitHub Actions → GitHub Pages (requiere HTTPS, que Pages entrega).
-- Riesgo pendiente: los datos siguen en un solo dispositivo; lo resuelve la Fase 4 (sincronización).
+- Riesgo pendiente: los datos siguen en un solo dispositivo; lo resuelve la Fase 4 (sincronización, ver ADR-002).

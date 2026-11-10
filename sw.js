@@ -4,7 +4,7 @@
  * actualiza la copia en segundo plano; la versión nueva se ve al volver a abrir.
  * Al cambiar archivos de la app, sube CACHE_VERSION para limpiar cachés viejas.
  */
-var CACHE_VERSION = 'apli-gym-v1';
+var CACHE_VERSION = 'apli-gym-v2';
 var APP_SHELL = [
   './',
   './index.html',
@@ -13,6 +13,9 @@ var APP_SHELL = [
   './js/storage.js',
   './js/chart.js',
   './js/app.js',
+  './js/config.js',
+  './js/cloud.js',
+  './js/cloud-ui.js',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-maskable-512.png',

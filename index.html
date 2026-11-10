@@ -19,6 +19,7 @@
   <header class="app-header">
     <h1>🏋️ Apli-Gym</h1>
     <p>Registra tus pesos y mira cómo progresas.</p>
+    <button type="button" id="sync-chip" class="sync-chip" hidden></button>
     <div id="install-bar" class="install-bar" hidden>
       <button type="button" id="btn-install" class="btn-install" hidden>📲 Instalar en el celular</button>
       <p id="ios-hint" class="install-hint" hidden>
@@ -145,9 +146,66 @@
       <p id="history-empty" class="chart-empty">Todavía no hay registros.</p>
     </section>
 
+    <section class="card" aria-labelledby="cloud-title" id="cloud-card">
+      <h2 id="cloud-title">☁️ Sincronización</h2>
+
+      <!-- 1) Sin configurar -->
+      <div id="cloud-config" hidden>
+        <p class="hint">Conecta la app a tu proyecto de Supabase para tener los mismos datos en el celular y en el computador.
+          Los pasos están en el README del repositorio (sección “Sincronización en la nube”).</p>
+        <form id="cloud-config-form" class="cloud-form" novalidate>
+          <label>URL del proyecto
+            <input type="url" id="cloud-url" placeholder="https://xxxx.supabase.co" autocomplete="off" inputmode="url">
+          </label>
+          <label>Clave pública (anon / publishable)
+            <input type="text" id="cloud-key" placeholder="eyJ… o sb_publishable_…" autocomplete="off" spellcheck="false">
+          </label>
+          <button type="submit" class="btn-primary">Guardar configuración</button>
+        </form>
+      </div>
+
+      <!-- 2) Configurada, sin sesión -->
+      <div id="cloud-login" hidden>
+        <p class="hint">Entra con tu correo: te enviaremos un código. Usa el mismo correo en todos tus dispositivos.</p>
+        <form id="cloud-email-form" class="cloud-form" novalidate>
+          <label>Correo
+            <input type="email" id="cloud-email" autocomplete="email" inputmode="email" placeholder="tu@correo.com" required>
+          </label>
+          <button type="submit" class="btn-primary">Enviarme un código</button>
+        </form>
+        <form id="cloud-code-form" class="cloud-form" novalidate hidden>
+          <label>Código recibido por correo
+            <input type="text" id="cloud-code" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="123456" required>
+          </label>
+          <div class="row">
+            <button type="submit" class="btn-primary">Entrar</button>
+            <button type="button" id="cloud-code-back">Cambiar correo</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 3) Con sesión -->
+      <div id="cloud-account" hidden>
+        <p>Conectado como <strong id="cloud-user"></strong></p>
+        <p id="cloud-detail" class="hint"></p>
+        <div class="row">
+          <button type="button" id="cloud-sync-now">Sincronizar ahora</button>
+          <button type="button" id="cloud-signout">Cerrar sesión</button>
+        </div>
+      </div>
+
+      <p id="cloud-msg" class="msg" role="status" aria-live="polite"></p>
+
+      <details id="cloud-advanced" hidden>
+        <summary>Configuración del servidor</summary>
+        <p class="hint" id="cloud-server"></p>
+        <button type="button" id="cloud-reset-config">Cambiar proyecto de Supabase</button>
+      </details>
+    </section>
+
     <section class="card" aria-labelledby="backup-title">
       <h2 id="backup-title">Respaldo</h2>
-      <p class="hint">Tus datos se guardan solo en este navegador. Exporta un respaldo de vez en cuando.</p>
+      <p class="hint">Sin sincronización, tus datos se guardan solo en este dispositivo. Exporta un respaldo de vez en cuando.</p>
       <div class="row">
         <button type="button" id="btn-export">Exportar JSON</button>
         <button type="button" id="btn-import">Importar JSON</button>
@@ -159,6 +217,9 @@
   <script src="js/storage.js"></script>
   <script src="js/chart.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/cloud.js"></script>
+  <script src="js/cloud-ui.js"></script>
   <script src="js/pwa.js"></script>
 </body>
 </html>

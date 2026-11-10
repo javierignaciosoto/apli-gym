@@ -521,4 +521,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', init);
+
+  // Permite que la sincronización redibuje la pantalla al recibir datos de otro dispositivo.
+  window.GymApp = { refresh: function () { refresh(); } };
 })();
