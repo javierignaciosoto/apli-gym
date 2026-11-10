@@ -115,7 +115,7 @@ El valor principal ahora es **registrar rápido y ver progreso**. La opción A e
 4. [x] Resumen: récord personal, último registro y variación.
 5. [x] Exportar / importar JSON.
 6. [x] Fase 2: **Objetivos** por ejercicio, con línea de meta en el gráfico y % de avance (ver nota abajo).
-7. [ ] Fase 3: PWA instalable (manifest + service worker) para usarla como app en el celular.
+7. [x] Fase 3: PWA instalable (manifest + service worker) para usarla como app en el celular (ver nota abajo).
 8. [ ] Fase 4: Sincronización en la nube (Supabase) reemplazando `storage.js`.
 9. [ ] Ideas futuras: rutinas/plantillas, volumen semanal por grupo muscular, alertas de récord.
 
@@ -126,3 +126,20 @@ El valor principal ahora es **registrar rápido y ver progreso**. La opción A e
 - Con fecha límite se muestra el ritmo necesario (≈ kg o reps por semana).
 - La meta se dibuja como línea punteada en el gráfico cuando coinciden ejercicio y métrica.
 - No hizo falta migrar el esquema: `goals` ya estaba reservado en v1.
+
+## Nota de implementación — Fase 3 (App para el celular / PWA)
+
+Se eligió **PWA** en vez de una app nativa (Android/iOS) o un empaquetador (Capacitor):
+
+| | PWA (elegida) | App nativa / Capacitor |
+|---|---|---|
+| Reutiliza el código actual | 100 % | Parcial (Capacitor) / nada (nativa) |
+| Costo | $0 | Cuenta de desarrollador (Apple USD 99/año, Google USD 25) |
+| Publicación | GitHub Pages, actualización inmediata | Tiendas, revisión de cada versión |
+| Funciona sin internet | Sí (service worker) | Sí |
+
+- `manifest.webmanifest`: nombre, íconos (incluye ícono *maskable* para Android) y modo `standalone`.
+- `sw.js`: precarga los archivos de la app y usa *stale-while-revalidate*; al publicar cambios se sube `CACHE_VERSION`.
+- `js/pwa.js`: botón de instalación (Android/Chrome) o instrucciones (iPhone), y `navigator.storage.persist()` para reducir el riesgo de que el sistema borre los datos.
+- Publicación automática con GitHub Actions → GitHub Pages (requiere HTTPS, que Pages entrega).
+- Riesgo pendiente: los datos siguen en un solo dispositivo; lo resuelve la Fase 4 (sincronización).
