@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="Registra tus pesos del gimnasio, sigue tu progreso y tus objetivos.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Apli-Gym">
+  <title>Apli-Gym · Registro de progreso</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <h1>🏋️ Apli-Gym</h1>
+    <p>Registra tus pesos y mira cómo progresas.</p>
+    <div id="install-bar" class="install-bar" hidden>
+      <button type="button" id="btn-install" class="btn-install" hidden>📲 Instalar en el celular</button>
+      <p id="ios-hint" class="install-hint" hidden>
+        Para instalarla en iPhone: toca <strong>Compartir</strong> <span aria-hidden="true">⬆️</span> y luego
+        <strong>“Agregar a pantalla de inicio”</strong>.
+      </p>
+      <button type="button" id="btn-install-close" class="install-close" aria-label="Ocultar aviso de instalación">✕</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="card" aria-labelledby="form-title">
+      <h2 id="form-title">Nuevo registro</h2>
+      <form id="entry-form" novalidate>
+        <div class="grid">
+          <label>Fecha
+            <input type="date" id="date" name="date" required>
+          </label>
+          <label>Ejercicio
+            <input type="text" id="exercise" name="exercise" list="exercise-list" placeholder="Ej: Press banca" autocomplete="off" required>
+            <datalist id="exercise-list"></datalist>
+          </label>
+        </div>
+
+        <fieldset class="equipment">
+          <legend>Implemento</legend>
+          <label class="chip"><input type="radio" name="equipment" value="barra" checked> Barra</label>
+          <label class="chip"><input type="radio" name="equipment" value="mancuernas"> Mancuernas</label>
+          <label class="chip"><input type="radio" name="equipment" value="peso_corporal"> Peso corporal</label>
+        </fieldset>
+
+        <div class="grid grid-3">
+          <label>Peso (kg)
+            <input type="number" id="weight" name="weight" min="0" step="0.5" inputmode="decimal" placeholder="0">
+            <small id="weight-hint" class="hint"></small>
+          </label>
+          <label>Series
+            <input type="number" id="sets" name="sets" min="1" step="1" value="3" inputmode="numeric" required>
+          </label>
+          <label>Repeticiones
+            <input type="number" id="reps" name="reps" min="1" step="1" value="10" inputmode="numeric" required>
+          </label>
+        </div>
+
+        <label>Notas (opcional)
+          <input type="text" id="notes" name="notes" placeholder="Ej: última serie al fallo">
+        </label>
+
+        <button type="submit" class="btn-primary">Guardar registro</button>
+        <p id="form-msg" class="msg" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="chart-title">
+      <div class="card-head">
+        <h2 id="chart-title">Progreso</h2>
+        <div class="controls">
+          <label class="inline">Ejercicio <select id="chart-exercise"></select></label>
+          <label class="inline">Métrica <select id="chart-metric"></select></label>
+        </div>
+      </div>
+      <div id="stats" class="stats"></div>
+      <div id="chart" class="chart"></div>
+      <p class="hint">Cada punto es tu mejor marca del día. Toca un punto para ver el detalle. El 1RM estimado usa la fórmula de Epley.</p>
+    </section>
+
+    <section class="card" aria-labelledby="goals-title">
+      <h2 id="goals-title">🎯 Objetivos</h2>
+      <div id="goals-list" class="goals"></div>
+      <p id="goals-empty" class="chart-empty">Aún no tienes objetivos. Crea uno abajo.</p>
+
+      <details id="goal-details">
+        <summary>Nuevo objetivo</summary>
+        <form id="goal-form" novalidate>
+          <div class="grid">
+            <label>Implemento
+              <select id="goal-equipment" name="equipment">
+                <option value="barra">Barra</option>
+                <option value="mancuernas">Mancuernas</option>
+                <option value="peso_corporal">Peso corporal</option>
+              </select>
+            </label>
+            <label>Ejercicio
+              <input type="text" id="goal-exercise" name="exercise" list="exercise-list" placeholder="Ej: Press banca" autocomplete="off" required>
+            </label>
+          </div>
+          <div class="grid grid-3">
+            <label>Métrica
+              <select id="goal-metric" name="metric">
+                <option value="weight">Peso máximo (kg)</option>
+                <option value="e1rm">1RM estimado (kg)</option>
+                <option value="reps">Repeticiones</option>
+              </select>
+            </label>
+            <label>Meta
+              <input type="number" id="goal-target" name="target" min="0" step="0.5" inputmode="decimal" placeholder="Ej: 80" required>
+            </label>
+            <label>Fecha límite
+              <input type="date" id="goal-deadline" name="deadline">
+              <small class="hint">Opcional</small>
+            </label>
+          </div>
+          <button type="submit" class="btn-primary">Crear objetivo</button>
+          <p id="goal-msg" class="msg" role="status" aria-live="polite"></p>
+        </form>
+      </details>
+    </section>
+
+    <section class="card" aria-labelledby="history-title">
+      <div class="card-head">
+        <h2 id="history-title">Historial</h2>
+        <div class="controls">
+          <select id="history-filter" aria-label="Filtrar historial por ejercicio"></select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="history">
+          <thead>
+            <tr><th>Fecha</th><th>Ejercicio</th><th>Implemento</th><th>Peso</th><th>Series×Reps</th><th>Notas</th><th><span class="sr-only">Acciones</span></th></tr>
+          </thead>
+          <tbody id="history-body"></tbody>
+        </table>
+      </div>
+      <p id="history-empty" class="chart-empty">Todavía no hay registros.</p>
+    </section>
+
+    <section class="card" aria-labelledby="backup-title">
+      <h2 id="backup-title">Respaldo</h2>
+      <p class="hint">Tus datos se guardan solo en este navegador. Exporta un respaldo de vez en cuando.</p>
+      <div class="row">
+        <button type="button" id="btn-export">Exportar JSON</button>
+        <button type="button" id="btn-import">Importar JSON</button>
+        <input type="file" id="file-import" accept="application/json,.json" hidden>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/storage.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/pwa.js"></script>
+</body>
+</html>

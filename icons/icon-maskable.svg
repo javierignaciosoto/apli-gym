@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" fill="#111827"/><g transform="translate(51.2 51.2) scale(.8)">
+  
+  <!-- Línea de progreso ascendente -->
+  <polyline points="96,368 184,312 256,330 336,236 416,176" fill="none" stroke="#059669" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>
+  <circle cx="416" cy="176" r="22" fill="#059669"/>
+  <!-- Mancuerna -->
+  <g transform="rotate(-20 256 236)">
+    <rect x="150" y="226" width="212" height="22" rx="11" fill="#e5e7eb"/>
+    <rect x="112" y="176" width="40" height="122" rx="14" fill="#2563eb"/>
+    <rect x="150" y="196" width="28" height="82" rx="10" fill="#3b82f6"/>
+    <rect x="360" y="176" width="40" height="122" rx="14" fill="#2563eb"/>
+    <rect x="334" y="196" width="28" height="82" rx="10" fill="#3b82f6"/>
+  </g>
+
+</g></svg>
