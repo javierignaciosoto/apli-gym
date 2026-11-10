@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111827">
+  <title>Apli-Gym · Registro de progreso</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <h1>🏋️ Apli-Gym</h1>
+    <p>Registra tus pesos y mira cómo progresas.</p>
+  </header>
+
+  <main>
+    <section class="card" aria-labelledby="form-title">
+      <h2 id="form-title">Nuevo registro</h2>
+      <form id="entry-form" novalidate>
+        <div class="grid">
+          <label>Fecha
+            <input type="date" id="date" name="date" required>
+          </label>
+          <label>Ejercicio
+            <input type="text" id="exercise" name="exercise" list="exercise-list" placeholder="Ej: Press banca" autocomplete="off" required>
+            <datalist id="exercise-list"></datalist>
+          </label>
+        </div>
+
+        <fieldset class="equipment">
+          <legend>Implemento</legend>
+          <label class="chip"><input type="radio" name="equipment" value="barra" checked> Barra</label>
+          <label class="chip"><input type="radio" name="equipment" value="mancuernas"> Mancuernas</label>
+          <label class="chip"><input type="radio" name="equipment" value="peso_corporal"> Peso corporal</label>
+        </fieldset>
+
+        <div class="grid grid-3">
+          <label>Peso (kg)
+            <input type="number" id="weight" name="weight" min="0" step="0.5" inputmode="decimal" placeholder="0">
+            <small id="weight-hint" class="hint"></small>
+          </label>
+          <label>Series
+            <input type="number" id="sets" name="sets" min="1" step="1" value="3" inputmode="numeric" required>
+          </label>
+          <label>Repeticiones
+            <input type="number" id="reps" name="reps" min="1" step="1" value="10" inputmode="numeric" required>
+          </label>
+        </div>
+
+        <label>Notas (opcional)
+          <input type="text" id="notes" name="notes" placeholder="Ej: última serie al fallo">
+        </label>
+
+        <button type="submit" class="btn-primary">Guardar registro</button>
+        <p id="form-msg" class="msg" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="chart-title">
+      <div class="card-head">
+        <h2 id="chart-title">Progreso</h2>
+        <div class="controls">
+          <label class="inline">Ejercicio <select id="chart-exercise"></select></label>
+          <label class="inline">Métrica <select id="chart-metric"></select></label>
+        </div>
+      </div>
+      <div id="stats" class="stats"></div>
+      <div id="chart" class="chart"></div>
+      <p class="hint">Cada punto es tu mejor marca del día. Toca un punto para ver el detalle. El 1RM estimado usa la fórmula de Epley.</p>
+    </section>
+
+    <section class="card" aria-labelledby="history-title">
+      <div class="card-head">
+        <h2 id="history-title">Historial</h2>
+        <div class="controls">
+          <select id="history-filter" aria-label="Filtrar historial por ejercicio"></select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="history">
+          <thead>
+            <tr><th>Fecha</th><th>Ejercicio</th><th>Implemento</th><th>Peso</th><th>Series×Reps</th><th>Notas</th><th><span class="sr-only">Acciones</span></th></tr>
+          </thead>
+          <tbody id="history-body"></tbody>
+        </table>
+      </div>
+      <p id="history-empty" class="chart-empty">Todavía no hay registros.</p>
+    </section>
+
+    <section class="card" aria-labelledby="backup-title">
+      <h2 id="backup-title">Respaldo</h2>
+      <p class="hint">Tus datos se guardan solo en este navegador. Exporta un respaldo de vez en cuando.</p>
+      <div class="row">
+        <button type="button" id="btn-export">Exportar JSON</button>
+        <button type="button" id="btn-import">Importar JSON</button>
+        <input type="file" id="file-import" accept="application/json,.json" hidden>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/storage.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
