@@ -2,6 +2,7 @@
  * Gráfico de líneas en SVG, sin dependencias.
  * GymChart.render(container, series, { unit })
  *   series: [{ label, color, points: [{ date: 'YYYY-MM-DD', value: Number, detail: String }] }]
+ *   opts.goals: [{ value: Number, color: String, label: String }]  -> líneas de meta punteadas
  */
 (function (global) {
   'use strict';
@@ -66,7 +67,9 @@
     var tMax = Math.max.apply(null, times);
     if (tMin === tMax) { tMin -= 3 * DAY; tMax += 3 * DAY; }
 
-    var values = all.map(function (p) { return p.value; });
+    var goals = opts.goals || [];
+    var values = all.map(function (p) { return p.value; })
+      .concat(goals.map(function (g) { return g.value; }));
     var vMin = Math.min.apply(null, values);
     var vMax = Math.max.apply(null, values);
     var pad = (vMax - vMin) * 0.15 || Math.max(vMax * 0.1, 1);
@@ -105,6 +108,14 @@
       svg.appendChild(el('text', { x: x(t), y: m.top + h + 22, class: 'axis-label', 'text-anchor': 'middle' }, formatDate(t, withYear)));
     }
     svg.appendChild(el('line', { x1: m.left, x2: m.left + w, y1: m.top + h, y2: m.top + h, class: 'axis' }));
+
+    // Líneas de objetivo
+    goals.forEach(function (g) {
+      var gy = y(g.value);
+      svg.appendChild(el('line', { x1: m.left, x2: m.left + w, y1: gy, y2: gy, class: 'goal-line', stroke: g.color }));
+      svg.appendChild(el('text', { x: m.left + w - 4, y: gy - 6, class: 'goal-label', fill: g.color, 'text-anchor': 'end' },
+        '🎯 ' + (g.label || fmt(g.value) + ' ' + unit)));
+    });
 
     // Tooltip
     var tip = document.createElement('div');

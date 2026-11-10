@@ -219,9 +219,27 @@
 
   function renderChart(allEntries) {
     var entries = allEntries.filter(function (e) { return e.exercise === state.chartExercise; });
+    // Peso corporal sin lastre: graficar kg no tiene sentido, se cambia a repeticiones.
+    var noLoad = entries.length && entries.every(function (e) { return e.equipment === 'peso_corporal' && !e.weight; });
+    if (noLoad && state.metric !== 'reps') {
+      state.autoSwitchedFrom = state.metric;
+      state.metric = 'reps';
+      $('chart-metric').value = 'reps';
+    } else if (!noLoad && state.autoSwitchedFrom) {
+      state.metric = state.autoSwitchedFrom;
+      $('chart-metric').value = state.metric;
+    }
+    if (!noLoad) state.autoSwitchedFrom = null;
     var metric = state.metric;
+    var goalLines = S.listGoals().filter(function (g) {
+      return g.exercise === state.chartExercise && g.metric === metric;
+    }).map(function (g) {
+      return { value: g.target, color: EQUIPMENT_COLOR[g.equipment],
+        label: 'Meta ' + EQUIPMENT_LABEL[g.equipment].toLowerCase() + ': ' + g.target + ' ' + METRICS[metric].unit };
+    });
     GymChart.render($('chart'), buildSeries(entries, metric), {
       unit: METRICS[metric].unit,
+      goals: entries.length ? goalLines : [],
       ariaLabel: METRICS[metric].label + ' de ' + state.chartExercise,
       emptyText: allEntries.length ? 'Sin datos para este ejercicio.' : 'Registra tu primer ejercicio para ver tu progreso aquí.'
     });
@@ -264,10 +282,168 @@
     });
   }
 
+  // ---------- Objetivos ----------
+  var DAY_MS = 86400000;
+
+  function daysBetween(fromIso, toIso) {
+    return Math.round((Date.parse(toIso + 'T00:00:00Z') - Date.parse(fromIso + 'T00:00:00Z')) / DAY_MS);
+  }
+
+  // Calcula el estado de un objetivo a partir de los registros.
+  function goalProgress(goal, allEntries) {
+    var unit = METRICS[goal.metric].unit;
+    var matching = allEntries.filter(function (e) {
+      return e.exercise === goal.exercise && e.equipment === goal.equipment;
+    }).sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+
+    var best = null;
+    var achievedOn = null;
+    matching.forEach(function (e) {
+      var v = metricValue(e, goal.metric);
+      if (!best || v > best.value) best = { value: v, date: e.date };
+      if (!achievedOn && v >= goal.target) achievedOn = e.date;
+    });
+
+    var current = best ? round1(best.value) : 0;
+    var pct = Math.min(100, Math.round((current / goal.target) * 100));
+    var remaining = round1(Math.max(0, goal.target - current));
+    var t = today();
+    var daysLeft = goal.deadline ? daysBetween(t, goal.deadline) : null;
+
+    var status, message;
+    if (achievedOn) {
+      status = 'done';
+      message = '¡Logrado el ' + formatDate(achievedOn) + '!';
+    } else if (daysLeft !== null && daysLeft < 0) {
+      status = 'overdue';
+      message = 'Venció el ' + formatDate(goal.deadline) + '. Te faltaron ' + remaining + ' ' + unit + '.';
+    } else {
+      status = 'active';
+      message = 'Te faltan ' + remaining + ' ' + unit + '.';
+      if (daysLeft !== null) {
+        var weeks = Math.max(daysLeft / 7, 1 / 7);
+        message += ' Quedan ' + daysLeft + (daysLeft === 1 ? ' día' : ' días');
+        if (current > 0) message += ' (≈ +' + round1(remaining / weeks) + ' ' + unit + '/semana)';
+        message += '.';
+      }
+      if (!matching.length) message = 'Sin registros todavía para ' + goal.exercise + ' con ' + EQUIPMENT_LABEL[goal.equipment].toLowerCase() + '.';
+    }
+    return { current: current, pct: achievedOn ? 100 : pct, status: status, message: message, unit: unit };
+  }
+
+  function renderGoals(allEntries) {
+    var list = $('goals-list');
+    list.innerHTML = '';
+    var goals = S.listGoals();
+    $('goals-empty').hidden = goals.length > 0;
+    $('goal-details').open = goals.length === 0 || $('goal-details').open;
+
+    goals.forEach(function (g) {
+      var p = goalProgress(g, allEntries);
+      var card = document.createElement('article');
+      card.className = 'goal ' + p.status;
+
+      var head = document.createElement('div');
+      head.className = 'goal-head';
+      var title = document.createElement('strong');
+      title.textContent = g.exercise + ' · ' + EQUIPMENT_LABEL[g.equipment];
+      var meta = document.createElement('span');
+      meta.className = 'goal-meta';
+      meta.textContent = METRICS[g.metric].label + ': ' + g.target + ' ' + p.unit +
+        (g.deadline ? ' · hasta ' + formatDate(g.deadline) : '');
+      var titleBox = document.createElement('div');
+      titleBox.appendChild(title);
+      titleBox.appendChild(meta);
+
+      var actions = document.createElement('div');
+      actions.className = 'goal-actions';
+      var view = document.createElement('button');
+      view.type = 'button';
+      view.textContent = 'Ver en gráfico';
+      view.addEventListener('click', function () {
+        state.chartExercise = g.exercise;
+        state.metric = g.metric;
+        state.autoSwitchedFrom = null;
+        $('chart-metric').value = g.metric;
+        refresh();
+        $('chart-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'btn-icon';
+      del.textContent = '✕';
+      del.title = 'Eliminar objetivo';
+      del.setAttribute('aria-label', 'Eliminar objetivo de ' + g.exercise);
+      del.addEventListener('click', function () {
+        if (confirm('¿Eliminar el objetivo de ' + g.exercise + '?')) { S.deleteGoal(g.id); refresh(); }
+      });
+      var hasEntries = allEntries.some(function (e) { return e.exercise === g.exercise; });
+      if (hasEntries) actions.appendChild(view);
+      actions.appendChild(del);
+      head.appendChild(titleBox);
+      head.appendChild(actions);
+
+      var bar = document.createElement('div');
+      bar.className = 'goal-bar';
+      bar.setAttribute('role', 'progressbar');
+      bar.setAttribute('aria-valuemin', '0');
+      bar.setAttribute('aria-valuemax', '100');
+      bar.setAttribute('aria-valuenow', String(p.pct));
+      var fill = document.createElement('span');
+      fill.style.width = p.pct + '%';
+      bar.appendChild(fill);
+
+      var foot = document.createElement('div');
+      foot.className = 'goal-foot';
+      var nums = document.createElement('span');
+      nums.className = 'goal-nums';
+      nums.textContent = p.current + ' / ' + g.target + ' ' + p.unit + ' · ' + p.pct + '%';
+      var msg = document.createElement('span');
+      msg.textContent = p.message;
+      foot.appendChild(nums);
+      foot.appendChild(msg);
+
+      card.appendChild(head);
+      card.appendChild(bar);
+      card.appendChild(foot);
+      list.appendChild(card);
+    });
+  }
+
+  function onGoalSubmit(evt) {
+    evt.preventDefault();
+    var form = evt.target;
+    var result = S.addGoal({
+      exercise: form.exercise.value,
+      equipment: form.equipment.value,
+      metric: form.metric.value,
+      target: form.target.value,
+      deadline: form.deadline.value
+    });
+    var msg = $('goal-msg');
+    if (!result.ok) {
+      msg.className = 'msg error';
+      msg.textContent = result.errors.join(' ');
+      return;
+    }
+    if (result.goal.deadline && result.goal.deadline < today()) {
+      msg.className = 'msg error';
+      msg.textContent = 'Objetivo creado, pero la fecha límite ya pasó.';
+    } else {
+      msg.className = 'msg ok';
+      msg.textContent = 'Objetivo creado: ' + result.goal.exercise + ' ' + result.goal.target + ' ' + METRICS[result.goal.metric].unit;
+    }
+    form.target.value = '';
+    form.deadline.value = '';
+    state.chartExercise = result.goal.exercise;
+    refresh();
+  }
+
   function refresh() {
     var entries = S.listEntries();
     renderExerciseLists(S.listExercises());
     renderChart(entries);
+    renderGoals(entries);
     renderHistory(entries);
   }
 
@@ -287,7 +463,8 @@
     reader.onload = function () {
       try {
         var r = S.importData(String(reader.result), 'merge');
-        alert('Importados ' + r.added + ' registros nuevos' + (r.skipped ? ' (' + r.skipped + ' omitidos por duplicados o inválidos).' : '.'));
+        alert('Importados ' + r.added + ' registros nuevos' + (r.skipped ? ' (' + r.skipped + ' omitidos por duplicados o inválidos)' : '') +
+          (r.goalsAdded ? ' y ' + r.goalsAdded + ' objetivos.' : '.'));
         refresh();
       } catch (e) {
         alert('El archivo no es un respaldo válido de Apli-Gym.');
@@ -312,9 +489,20 @@
       metricSel.appendChild(o);
     });
     metricSel.value = state.metric;
-    metricSel.addEventListener('change', function () { state.metric = metricSel.value; refresh(); });
+    metricSel.addEventListener('change', function () { state.metric = metricSel.value; state.autoSwitchedFrom = null; refresh(); });
     $('chart-exercise').addEventListener('change', function (e) { state.chartExercise = e.target.value; refresh(); });
     $('history-filter').addEventListener('change', function (e) { state.historyFilter = e.target.value; refresh(); });
+
+    $('goal-form').addEventListener('submit', onGoalSubmit);
+    // Sugerir el implemento y el ejercicio que se está mirando en el gráfico.
+    $('goal-details').addEventListener('toggle', function () {
+      if ($('goal-details').open && !$('goal-exercise').value && state.chartExercise) {
+        $('goal-exercise').value = state.chartExercise;
+      }
+    });
+    $('goal-metric').addEventListener('change', function (e) {
+      $('goal-target').step = e.target.value === 'reps' ? '1' : '0.5';
+    });
 
     $('btn-export').addEventListener('click', exportJson);
     $('btn-import').addEventListener('click', function () { $('file-import').click(); });

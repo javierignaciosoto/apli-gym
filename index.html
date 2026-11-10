@@ -69,6 +69,48 @@
       <p class="hint">Cada punto es tu mejor marca del día. Toca un punto para ver el detalle. El 1RM estimado usa la fórmula de Epley.</p>
     </section>
 
+    <section class="card" aria-labelledby="goals-title">
+      <h2 id="goals-title">🎯 Objetivos</h2>
+      <div id="goals-list" class="goals"></div>
+      <p id="goals-empty" class="chart-empty">Aún no tienes objetivos. Crea uno abajo.</p>
+
+      <details id="goal-details">
+        <summary>Nuevo objetivo</summary>
+        <form id="goal-form" novalidate>
+          <div class="grid">
+            <label>Implemento
+              <select id="goal-equipment" name="equipment">
+                <option value="barra">Barra</option>
+                <option value="mancuernas">Mancuernas</option>
+                <option value="peso_corporal">Peso corporal</option>
+              </select>
+            </label>
+            <label>Ejercicio
+              <input type="text" id="goal-exercise" name="exercise" list="exercise-list" placeholder="Ej: Press banca" autocomplete="off" required>
+            </label>
+          </div>
+          <div class="grid grid-3">
+            <label>Métrica
+              <select id="goal-metric" name="metric">
+                <option value="weight">Peso máximo (kg)</option>
+                <option value="e1rm">1RM estimado (kg)</option>
+                <option value="reps">Repeticiones</option>
+              </select>
+            </label>
+            <label>Meta
+              <input type="number" id="goal-target" name="target" min="0" step="0.5" inputmode="decimal" placeholder="Ej: 80" required>
+            </label>
+            <label>Fecha límite
+              <input type="date" id="goal-deadline" name="deadline">
+              <small class="hint">Opcional</small>
+            </label>
+          </div>
+          <button type="submit" class="btn-primary">Crear objetivo</button>
+          <p id="goal-msg" class="msg" role="status" aria-live="polite"></p>
+        </form>
+      </details>
+    </section>
+
     <section class="card" aria-labelledby="history-title">
       <div class="card-head">
         <h2 id="history-title">Historial</h2>

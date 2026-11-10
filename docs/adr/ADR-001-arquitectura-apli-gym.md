@@ -54,7 +54,8 @@ Convenciones:
 
 - `weight` en **kg**. Con **mancuernas** es el peso de **una** mancuerna. Con **peso corporal** es el **lastre adicional** (0 si no hay).
 - Métrica del gráfico por día y ejercicio: **peso máximo** levantado, o **1RM estimado** (fórmula de Epley: `peso × (1 + reps/30)`). Para peso corporal sin lastre se grafican **repeticiones máximas**.
-- Estructura reservada para objetivos (fase 2): `{ id, exercise, equipment, metric: "weight|e1rm|reps", target, deadline, createdAt, achievedAt }`.
+- Objetivos (fase 2, implementada): `{ id, exercise, equipment, metric: "weight|e1rm|reps", target, deadline?, createdAt }`.
+  El avance y la fecha de logro **no se guardan**: se calculan siempre desde los registros (mejor marca ÷ meta), así nunca quedan desincronizados si se edita o borra un registro.
 
 ## Options Considered
 
@@ -113,7 +114,15 @@ El valor principal ahora es **registrar rápido y ver progreso**. La opción A e
 3. [x] Gráfico de progreso por ejercicio (peso máximo / 1RM estimado / reps).
 4. [x] Resumen: récord personal, último registro y variación.
 5. [x] Exportar / importar JSON.
-6. [ ] Fase 2: **Objetivos** por ejercicio, con línea de meta en el gráfico y % de avance.
+6. [x] Fase 2: **Objetivos** por ejercicio, con línea de meta en el gráfico y % de avance (ver nota abajo).
 7. [ ] Fase 3: PWA instalable (manifest + service worker) para usarla como app en el celular.
 8. [ ] Fase 4: Sincronización en la nube (Supabase) reemplazando `storage.js`.
 9. [ ] Ideas futuras: rutinas/plantillas, volumen semanal por grupo muscular, alertas de récord.
+
+## Nota de implementación — Fase 2 (Objetivos)
+
+- Un objetivo es por **ejercicio + implemento + métrica** (peso máximo, 1RM estimado o repeticiones). El volumen se excluyó porque depende del día y no es una meta estable.
+- Estados: **en curso**, **logrado** (primer registro que alcanza la meta) y **vencido** (pasó la fecha límite sin lograrlo).
+- Con fecha límite se muestra el ritmo necesario (≈ kg o reps por semana).
+- La meta se dibuja como línea punteada en el gráfico cuando coinciden ejercicio y métrica.
+- No hizo falta migrar el esquema: `goals` ya estaba reservado en v1.

@@ -11,6 +11,8 @@ Aplicación web para registrar tus pesos del gimnasio y ver tu progreso en un gr
   - Volumen (series × reps × kg)
   - Repeticiones máximas (útil para peso corporal)
 - **Resumen**: récord personal, último registro, progreso desde el inicio y días entrenados.
+- **Objetivos** por ejercicio e implemento (peso máximo, 1RM estimado o repeticiones), con fecha límite opcional:
+  barra de avance, estado (en curso / logrado / vencido), ritmo semanal necesario y línea de meta en el gráfico.
 - **Historial** filtrable por ejercicio, con opción de eliminar registros.
 - **Respaldo**: exportar e importar los datos en JSON.
 
@@ -50,6 +52,6 @@ apli-gym/
 
 Ver la decisión de arquitectura y el roadmap en [`docs/adr/ADR-001-arquitectura-apli-gym.md`](docs/adr/ADR-001-arquitectura-apli-gym.md):
 
-1. **Objetivos** por ejercicio (meta en el gráfico y % de avance) — el modelo de datos ya reserva `goals`.
+1. ~~Objetivos por ejercicio~~ ✅
 2. PWA instalable en el celular.
 3. Sincronización en la nube.

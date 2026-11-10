@@ -143,6 +143,8 @@ button:hover { border-color: var(--primary); }
 .chart-svg .axis { stroke: var(--muted); stroke-width: 1; }
 .chart-svg .axis-label, .chart-svg .axis-unit { fill: var(--muted); font-size: 11px; }
 .chart-svg .line { fill: none; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.chart-svg .goal-line { stroke-width: 2; stroke-dasharray: 6 5; opacity: .85; }
+.chart-svg .goal-label { font-size: 11px; font-weight: 600; paint-order: stroke; stroke: var(--card); stroke-width: 3px; }
 .chart-svg .dot { stroke: var(--card); stroke-width: 2; }
 .chart-svg .hit { fill: transparent; cursor: pointer; outline: none; }
 .chart-tip {
@@ -161,6 +163,27 @@ button:hover { border-color: var(--primary); }
 .chart-legend { display: flex; gap: 1rem; flex-wrap: wrap; font-size: .85rem; margin-top: .25rem; }
 .chart-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: .35rem; vertical-align: -1px; }
 .chart-empty { color: var(--muted); text-align: center; padding: 2rem 0; margin: 0; }
+
+/* Objetivos */
+.goals { display: grid; gap: .6rem; margin-bottom: .75rem; }
+.goal { border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 10px; padding: .7rem .85rem; display: grid; gap: .5rem; }
+.goal.done { border-left-color: var(--ok); }
+.goal.overdue { border-left-color: var(--error); }
+.goal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
+.goal-head strong { display: block; }
+.goal-meta { font-size: .8rem; color: var(--muted); }
+.goal-actions { display: flex; gap: .35rem; flex-shrink: 0; }
+.goal-actions button { padding: .3rem .6rem; font-size: .8rem; }
+.goal-bar { height: 10px; border-radius: 999px; background: var(--border); overflow: hidden; }
+.goal-bar span { display: block; height: 100%; background: var(--primary); border-radius: inherit; transition: width .3s; }
+.goal.done .goal-bar span { background: var(--ok); }
+.goal.overdue .goal-bar span { background: var(--error); }
+.goal-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .25rem .75rem; font-size: .82rem; color: var(--muted); }
+.goal-nums { font-weight: 600; color: var(--text); }
+.goal.done .goal-foot span:last-child { color: var(--ok); font-weight: 600; }
+.goal.overdue .goal-foot span:last-child { color: var(--error); }
+details summary { cursor: pointer; font-weight: 600; color: var(--primary); padding: .25rem 0; }
+details[open] summary { margin-bottom: .75rem; }
 
 /* Historial */
 .table-wrap { overflow-x: auto; }
